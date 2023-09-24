@@ -18,7 +18,7 @@ public class Player : NetworkBehaviour
         playerCamera = transform.Find("Camera").GetComponent<Camera>();
         playerCamera.enabled = IsOwner;
         playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
-        playerBody = transform.Find("PlayerBody").gameObject;
+        playerBody = transform.gameObject;
         ApplyColor();
     }
     private void Update()
@@ -44,9 +44,9 @@ public class Player : NetworkBehaviour
         playerBody.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
     }
 
-    [ServerRpc] private void MoveServerRpc(Vector3 movement, Vector3 rotation)
+    [ServerRpc(RequireOwnership = true)]
+    private void MoveServerRpc(Vector3 movement, Vector3 rotation)
     {
-
         transform.Translate(movement);
         transform.Rotate(rotation);
         

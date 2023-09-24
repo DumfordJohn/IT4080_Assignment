@@ -64,7 +64,7 @@ public class Fighter_Arena_Game : NetworkBehaviour
     {
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
-            if (IsHost)
+            if (clientId == NetworkManager.LocalClientId)
             {
                 Player hostspawn = Instantiate(hostPrefab, NextPosition(), Quaternion.identity);
                 hostspawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);

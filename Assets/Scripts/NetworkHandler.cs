@@ -12,79 +12,86 @@ public class NetworkHandler : NetworkBehaviour
         NetworkManager.OnServerStarted += OnServerStarted;
     }
 
-    private bool hasPrinted = false;
     private void PrintMe()
     {
-        if (hasPrinted)
-        {
-            return;
-        }
-        Debug.Log("I AM");
-        hasPrinted = true;
         if (IsServer)
         {
-            Debug.Log($" the Server! {NetworkManager.ServerClientId}");
+            NetworkHelper.Log($"I AM a Server! {NetworkManager.ServerClientId}");
         }
         if (IsHost)
         {
-            Debug.Log($" the Host! {NetworkManager.ServerClientId}/{NetworkManager.LocalClientId}");
+            NetworkHelper.Log($"I AM a Host! {NetworkManager.ServerClientId}/{NetworkManager.LocalClientId}");
         }
         if (IsClient)
         {
-            Debug.Log($" a Client! {NetworkManager.LocalClientId}");
+            NetworkHelper.Log($"I AM a Client! {NetworkManager.LocalClientId}");
         }
         if (!IsServer && !IsClient)
         {
-            Debug.Log(" Nothing yet");
-            hasPrinted = false;
+            NetworkHelper.Log("I AM Nothing yet");
         }
     }
 
     private void OnClientStarted()
     {
-        Debug.Log("!! Client Started !!");
+        NetworkHelper.Log("!! Client Started !!");
         NetworkManager.OnClientConnectedCallback += ClientOnClientConnected;
         NetworkManager.OnClientDisconnectCallback += ClientOnClientDisconnected;
         NetworkManager.OnClientStopped += ClientOnClientStopped;
         PrintMe();
     }
-
-    private void ClientOnClientConnected(ulong clientID) {
-        PrintMe();
-    }
-    private void ClientOnClientDisconnected(ulong clientID) { }
     private void ClientOnClientStopped(bool indicator) 
     {
-        Debug.Log("!! Client Stopped !!");
-        hasPrinted = false;
+        NetworkHelper.Log("!! Client Stopped !!");
         NetworkManager.OnClientConnectedCallback -= ClientOnClientConnected;
         NetworkManager.OnClientDisconnectCallback -= ClientOnClientDisconnected;
         NetworkManager.OnClientStopped -= ClientOnClientStopped;
+        PrintMe();
+    }
+
+    private void ClientOnClientConnected(ulong clientID) {
+        if (IsClient && !IsHost)
+        {
+            NetworkHelper.Log($"I have connected {clientID}");
+        } else if (clientID == NetworkManager.ServerClientId)
+        {
+            NetworkHelper.Log($"I have connected {clientID}");
+        }
+    }
+    private void ClientOnClientDisconnected(ulong clientID) {
+        if (IsClient && !IsHost)
+        {
+            NetworkHelper.Log($"I have disconnected {clientID}");
+        }
+        else if (clientID == NetworkManager.ServerClientId)
+        {
+            NetworkHelper.Log($"I have disconnected {clientID}");
+        }
     }
 
     private void OnServerStarted()
     {
-        Debug.Log("!! Server Started !!");
+        NetworkHelper.Log("!! Server Started !!");
         NetworkManager.OnClientConnectedCallback += ServerOnClientConnected;
         NetworkManager.OnClientDisconnectCallback += ServerOnClientDisconnected;
         NetworkManager.OnServerStopped += ServerOnServerStopped;
         PrintMe();
     }
-
-    private void ServerOnClientConnected(ulong clientID)
-    {
-        Debug.Log($"Client {clientID} connected to the server");
-    }
-    private void ServerOnClientDisconnected(ulong clientID)
-    {
-        Debug.Log($"Client {clientID} disconnected from the server");
-    }
     private void ServerOnServerStopped(bool indicator)
     {
-        Debug.Log("!! Server Stopped !!");
-        hasPrinted = false;
+        NetworkHelper.Log("!! Server Stopped !!");
         NetworkManager.OnClientConnectedCallback -= ServerOnClientConnected;
         NetworkManager.OnClientDisconnectCallback -= ServerOnClientDisconnected;
         NetworkManager.OnServerStopped -= ServerOnServerStopped;
+        PrintMe();
+    }
+
+    private void ServerOnClientConnected(ulong clientID)
+    {
+        NetworkHelper.Log($"Client {clientID} connected to the server");
+    }
+    private void ServerOnClientDisconnected(ulong clientID)
+    {
+        NetworkHelper.Log($"Client {clientID} disconnected from the server");
     }
 }

@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     private void OnGUI()
     {
-        NetworkHelper.GUILayoutNetowrkControls();
+        NetworkHelper.GUILayoutNetworkControls();
     }
 
 }

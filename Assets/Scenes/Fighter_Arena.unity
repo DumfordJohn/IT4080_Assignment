@@ -176,6 +176,8 @@ MonoBehaviour:
   playerPrefab: {fileID: 245340852761461780, guid: 5da065e8c8a0be24e8841a6eb09ea1c0, type: 3}
   hostPrefab: {fileID: 245340852761461780, guid: 9667f19383877d9449b14c120bc876a6, type: 3}
   arenaCamera: {fileID: 476823831}
+  max: 5
+  increment: 1
 --- !u!4 &134901476
 Transform:
   m_ObjectHideFlags: 0

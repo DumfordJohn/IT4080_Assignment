@@ -8,29 +8,54 @@ public class Player : NetworkBehaviour
 {
     public float movementSpeed = 50f;
     public float rotationSpeed = 130f;
-    public NetworkVariable<Color> playerColorNetVar = new NetworkVariable<Color>(Color.red);
+    public NetworkVariable<Color> PlayerColor = new NetworkVariable<Color>(Color.red);
 
     private Camera playerCamera;
     private GameObject playerBody;
 
-    private void Start()
+    private void NetworkInit()
     {
+        playerBody = transform.Find("Body").gameObject;
         playerCamera = transform.Find("Camera").GetComponent<Camera>();
         playerCamera.enabled = IsOwner;
         playerCamera.GetComponent<AudioListener>().enabled = IsOwner;
-        playerBody = transform.gameObject;
-        ApplyColor();
+        ApplyPlayerColor();
+        PlayerColor.OnValueChanged += OnPlayerColorChanged;
     }
-    private void Update()
+
+    private void Awake()
+    {
+        NetworkHelper.Log(this, "Awake");
+    }
+
+    void Start()
+    {
+        NetworkHelper.Log(this, "Start");
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        NetworkHelper.Log(this, "OnNetworkSpawn");
+        NetworkInit();
+        base.OnNetworkSpawn();
+    }
+
+    void Update()
     {
         if (IsOwner)
         {
-            OwnerHandleInput();
+            OwnerHandleMovementInput();
         }
     }
 
-    private void OwnerHandleInput()
+    public void OnPlayerColorChanged(Color previous, Color current)
     {
+        ApplyPlayerColor();
+    }
+
+    private void OwnerHandleMovementInput()
+    {
+        
         Vector3 movement = CalcMovement();
         Vector3 rotation = CalcRotation();
         if (movement != Vector3.zero || rotation != Vector3.zero)
@@ -39,16 +64,17 @@ public class Player : NetworkBehaviour
         }
     }
 
-    private void ApplyColor()
+    private void ApplyPlayerColor()
     {
-        playerBody.GetComponent<MeshRenderer>().material.color = playerColorNetVar.Value;
+        NetworkHelper.Log(this, $"Applying color {PlayerColor.Value}");
+        playerBody.GetComponent<MeshRenderer>().material.color = PlayerColor.Value;
     }
 
-    [ServerRpc(RequireOwnership = true)]
-    private void MoveServerRpc(Vector3 movement, Vector3 rotation)
+    [ServerRpc]
+    private void MoveServerRpc(Vector3 posChange, Vector3 rotChange)
     {
-        transform.Translate(movement);
-        transform.Rotate(rotation);
+        transform.Translate(posChange);
+        transform.Rotate(rotChange);
         
     }
 

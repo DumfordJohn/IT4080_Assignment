@@ -27,6 +27,16 @@ public class Fighter_Arena_Game : NetworkBehaviour
         Color.magenta,
     };
 
+    private int WrapInt(int curValue, int increment, int max)
+    {
+        int toReturn = curValue + increment;
+        if(toReturn > max)
+        {
+            toReturn = 0;
+        }
+        return toReturn;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -64,18 +74,14 @@ public class Fighter_Arena_Game : NetworkBehaviour
     {
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
+            Player prefab = playerPrefab;
             if (clientId == NetworkManager.LocalClientId)
             {
-                Player hostspawn = Instantiate(hostPrefab, NextPosition(), Quaternion.identity);
-                hostspawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
-                hostspawn.playerColorNetVar.Value = NextColor();
+                prefab = hostPrefab;
             }
-            else
-            {
-                Player playerSpawn = Instantiate(playerPrefab, NextPosition(), Quaternion.identity);
-                playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
-                playerSpawn.playerColorNetVar.Value = NextColor();
-            }
+            Player playerSpawn = Instantiate(playerPrefab, NextPosition(), Quaternion.identity);
+            playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+            playerSpawn.PlayerColor.Value = NextColor();
         }
     }
 }

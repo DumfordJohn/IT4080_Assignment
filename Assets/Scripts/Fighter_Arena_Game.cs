@@ -75,12 +75,12 @@ public class Fighter_Arena_Game : NetworkBehaviour
         foreach(ulong clientId in NetworkManager.ConnectedClientsIds)
         {
             Player prefab = playerPrefab;
-            if (clientId == NetworkManager.LocalClientId)
-            {
-                prefab = hostPrefab;
-            }
-            Player playerSpawn = Instantiate(playerPrefab, NextPosition(), Quaternion.identity);
-            playerSpawn.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+            //if (clientId == NetworkManager.LocalClientId)
+            //{
+            //    prefab = hostPrefab;
+            //}
+            Player playerSpawn = Instantiate(prefab, NextPosition(), Quaternion.identity);
+            playerSpawn.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
             playerSpawn.PlayerColor.Value = NextColor();
         }
     }

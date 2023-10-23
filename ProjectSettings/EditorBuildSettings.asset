@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Main.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
+    path: Assets/Scenes/Lobby.unity
+    guid: 1a8e9097aa0496e459aa6bbf731e3224
+  - enabled: 1
     path: Assets/Scenes/Fighter_Arena.unity
     guid: 1aa328b64f26d80499674450e0e80c4e
   - enabled: 1

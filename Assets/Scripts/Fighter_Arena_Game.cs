@@ -9,6 +9,7 @@ public class Fighter_Arena_Game : NetworkBehaviour
     public Player playerPrefab;
     public Player hostPrefab;
     public Camera arenaCamera;
+    public GameObject healthPickups;
 
     private NetworkedPlayers networkedPlayers;
 
@@ -20,6 +21,15 @@ public class Fighter_Arena_Game : NetworkBehaviour
         new Vector3 (0, 2, 4),
         new Vector3 (0, 2, -4)
     };
+
+    private int hpPositionIndex = 0;
+    private Vector3[] hpPositions = new Vector3[]
+{
+        new Vector3 (3, 2, 0),
+        new Vector3 (-3, 2, 0),
+        new Vector3 (0, 2, 3),
+        new Vector3 (0, 2, -3)
+};
 
 
 
@@ -44,6 +54,7 @@ public class Fighter_Arena_Game : NetworkBehaviour
         if (IsServer)
         {
             SpawnPlayers();
+            SpawnHealthPickUps();
         }
     }
 
@@ -58,7 +69,16 @@ public class Fighter_Arena_Game : NetworkBehaviour
         return pos;
     }
 
-
+    private Vector3 HPPickupNextPositions()
+    {
+        Vector3 pos = hpPositions[hpPositionIndex];
+        hpPositionIndex += 1;
+        if(hpPositionIndex > hpPositions.Length - 1)
+        {
+            hpPositionIndex = 0;
+        }
+        return pos;
+    }
 
     private void SpawnPlayers()
     {
@@ -68,6 +88,15 @@ public class Fighter_Arena_Game : NetworkBehaviour
             Player playerSpawn = Instantiate(prefab, NextPosition(), Quaternion.identity);
             playerSpawn.GetComponent<NetworkObject>().SpawnAsPlayerObject(info.clientId);
             playerSpawn.PlayerColor.Value = info.color;
+        }
+    }
+
+    private void SpawnHealthPickUps()
+    {
+        foreach(Vector3 hpSpawnLoc in hpPositions)
+        {
+            GameObject hpPickup = Instantiate(healthPickups, HPPickupNextPositions(), Quaternion.identity);
+            hpPickup.GetComponent<NetworkObject>().Spawn();
         }
     }
 }

@@ -8,7 +8,7 @@ public class Player : NetworkBehaviour
 {
     public NetworkVariable<Color> PlayerColor = new NetworkVariable<Color>(Color.red);
     public NetworkVariable<int> ScoreNetVar = new NetworkVariable<int>(0);
-
+    public NetworkVariable<int> playerHP = new NetworkVariable<int>();
     public BulletSpawner bulletSpawner;
     
     
@@ -49,6 +49,7 @@ public class Player : NetworkBehaviour
         NetworkHelper.Log(this, "OnNetworkSpawn");
         NetworkInit();
         base.OnNetworkSpawn();
+        playerHP.Value = 100;
     }
 
     private void ClientOnScoreValueChanged(int old, int current)
@@ -76,6 +77,15 @@ public class Player : NetworkBehaviour
                 other.GetComponent<BasePowerUp>().ServerPickUp(this);
             }
         }
+        if (other.GetComponent<Bullet>())
+        {
+            NetworkManager.Singleton.ConnectedClients[other.GetComponent<NetworkObject>().OwnerClientId].PlayerObject.GetComponent<NetwrokPlayerData>().score.Value += 1;
+            playerHP.Value -= 10;
+        }
+        else if (other.GetComponent<PowerUpHealthPickup>())
+        {
+            playerHP.Value += 50;
+        }
     }
 
     private void ServerHandleCollision(Collision collision)
@@ -84,9 +94,10 @@ public class Player : NetworkBehaviour
         {
             ulong ownerId = collision.gameObject.GetComponent<NetworkObject>().OwnerClientId;
             NetworkHelper.Log(this, $"Hit by {collision.gameObject.name} " + $"owned by {ownerId}");
-            Player other = NetworkManager.Singleton.ConnectedClients[ownerId].PlayerObject.GetComponent<Player>();
-            other.ScoreNetVar.Value += 1;
-            Destroy(collision.gameObject);
+            //Player other = NetworkManager.Singleton.ConnectedClients[ownerId].PlayerObject.GetComponent<Player>();
+            //other.ScoreNetVar.Value += 1;
+            Destroy(collision.gameObject); 
+            playerHP.Value -= 10;
         }
     }
 
